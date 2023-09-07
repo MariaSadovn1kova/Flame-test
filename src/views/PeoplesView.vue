@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, onUpdated, ref } from 'vue';
 import type { Ref } from 'vue'
 import { useStore } from '../store'
 import type { Person } from '../store/state'
@@ -8,6 +8,7 @@ import { ActionTypes } from '../store/actions'
 
 const peoplesList = ref<Person[]>([]);
 const peoplesSearchList = ref<Person[]>([]);
+const peoplesFavoriteList = ref<Person[]>([]);
 const loading: Ref <Boolean> = ref(true);
 const activePage: Ref <Number> = ref(1);
 const search: Ref <String> = ref(null);
@@ -15,28 +16,11 @@ const store = useStore()
 
 async function getPeoples(){
     loading.value = true;
-    peoplesList.value.splice(0, peoplesList.value.length);
+    peoplesList.value = [];
 
-    store.dispatch(ActionTypes.GetAllPeoples)
+    await store.dispatch(ActionTypes.GetAllPeoples, activePage.value)
     peoplesList.value = store.getters.peoplesList
 
-
-    // const res = await fetch('https://swapi.dev/api/people/?page=' + activePage.value);
-    // const data = await res.json();
-
-    // for (let i = 0; i < data.results.length; i++){
-
-    //     let person: Person = {
-    //         id: Number(data.results[i].url.replace(/[^0-9]/g,"")),
-    //         name: data.results[i].name,
-    //         height: data.results[i].height, 
-    //         mass: data.results[i].mass,
-    //         hair_color: data.results[i].hair_color
-    //     }
-
-    //     peoplesList.value.push(person)
-    // }
-    console.log(peoplesList)
     loading.value = false;
 }
 
@@ -50,35 +34,43 @@ async function setActivePagination(page: Number){
 }
 
 async function searchPerson(){
-    const res = await fetch('https://swapi.dev/api/people/?search=' + search.value)
-    const data = await res.json()
+    peoplesSearchList.value = [];
 
-    peoplesSearchList.value.splice(0, peoplesSearchList.value.length);
-
-    for (let i = 0; i < data.results.length; i++){
-
-        let person: Person = {
-            id: Number(data.results[i].url.replace(/[^0-9]/g,"")),
-            name: data.results[i].name,
-            height: data.results[i].height, 
-            mass: data.results[i].mass,
-            hair_color: data.results[i].hair_color
-        }
-
-        peoplesSearchList.value.push(person)
-    }
-
+    await store.dispatch(ActionTypes.GetSearchPeoples, search.value);
+    peoplesSearchList.value = store.getters.searchPeoplesList;
 }
 
 
+function addFavorite(item){
+    if (!findFavorite(item.id)){
+        store.commit(MutationType.PushFavoritesPerson, item);
+        localStorage.setItem(`favorites_list`, JSON.stringify(store.getters.favoritePeople));
+    } else {
+        store.commit(MutationType.DeleteFavoritesPerson, item);
+        localStorage.setItem(`favorites_list`, JSON.stringify(store.getters.favoritePeople));
+    }
+}
+
 onBeforeMount(async () => { 
     await getPeoples();
+    store.dispatch(ActionTypes.GetFavoritesPeoples, null);
 })
+
+function findFavorite(personID){
+    const ind = store.getters.favoritePeople.findIndex((el) => el.id === personID);
+    if (ind !== -1) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 </script>
 
 <template>
 
+    <!-- По-хорошему таблицу в отдельный компонент вынести (так как есть реиспользуемость на других страницах),
+    Но задание достаточно большое, поэтому, чтобы не терять времени, сделала так -->
     <div class="table">
 
         <div class="search">
@@ -114,7 +106,7 @@ onBeforeMount(async () => {
                 <div class="row__item">{{ person.hair_color }}</div>
 
                 <div class="row__item">
-                    <button class="btn__add">{{ 'Add favorite' }}</button>
+                    <button class="btn-add" :class="{'inactive' :findFavorite(person.id)}" @click="addFavorite(person)">{{ 'Favorite' }}</button>
                 </div>
 
             </div>
@@ -248,7 +240,7 @@ onBeforeMount(async () => {
                 padding: 20px;
                 text-align: center;
 
-                .btn__add{
+                .btn-add{
                     padding: 5px 10px;
                     background-color: var(--vt-blue-300);
                     color: var(--vt-c-white);
@@ -256,8 +248,14 @@ onBeforeMount(async () => {
                     border-radius: 5px;
                     transition: 0.3s;
 
+                    &.inactive{
+                        background-color: var(--vt-c-white-soft);
+                        color: var(--vt-blue-500);
+                    }
+
                     &:hover{
                         background-color: var(--vt-blue-400);
+                        color: var(--vt-c-white);
                         cursor: pointer;
                     }
                 }

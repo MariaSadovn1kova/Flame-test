@@ -20,6 +20,12 @@ const router = createRouter({
       name: "person",
       // @ts-ignore
       component: () => import('../views/PersonView.vue'),
+    },
+    {
+      path: "/favorites",
+      name: "favorites",
+      // @ts-ignore
+      component: () => import('../views/FavoritesView.vue'),
     }
   ]
 })

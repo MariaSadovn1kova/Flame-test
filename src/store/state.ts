@@ -7,13 +7,15 @@ export type Person = {
 }
 
 export type State = {
-    loading: boolean,
     activePage: number,
-    peoplesList: Person[]
+    peoplesList: Person[],
+    searchPeoplesList: Person[],
+    favoritePeople: Person[]
 }
 
 export const state: State = {
-    loading: true,
     activePage: 1,
-    peoplesList: []
+    peoplesList: [],
+    searchPeoplesList: [],
+    favoritePeople: []
 }
