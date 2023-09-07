@@ -9,9 +9,9 @@ import { ActionTypes } from '../store/actions'
 const peoplesList = ref<Person[]>([]);
 const peoplesSearchList = ref<Person[]>([]);
 const peoplesFavoriteList = ref<Person[]>([]);
-const loading: Ref <Boolean> = ref(true);
-const activePage: Ref <Number> = ref(1);
-const search: Ref <String> = ref(null);
+const loading: Ref <boolean> = ref(true);
+const activePage: Ref <number> = ref(1);
+const search: Ref <string> = ref('');
 const store = useStore()
 
 async function getPeoples(){
@@ -24,7 +24,7 @@ async function getPeoples(){
     loading.value = false;
 }
 
-async function setActivePagination(page: Number){
+async function setActivePagination(page: number){
     if (page < 10){
         loading.value = true;
         activePage.value = page;
@@ -41,7 +41,7 @@ async function searchPerson(){
 }
 
 
-function addFavorite(item){
+function addFavorite(item: Person){
     if (!findFavorite(item.id)){
         store.commit(MutationType.PushFavoritesPerson, item);
         localStorage.setItem(`favorites_list`, JSON.stringify(store.getters.favoritePeople));
@@ -53,10 +53,10 @@ function addFavorite(item){
 
 onBeforeMount(async () => { 
     await getPeoples();
-    store.dispatch(ActionTypes.GetFavoritesPeoples, null);
+    store.dispatch(ActionTypes.GetFavoritesPeoples, undefined);
 })
 
-function findFavorite(personID){
+function findFavorite(personID: number){
     const ind = store.getters.favoritePeople.findIndex((el) => el.id === personID);
     if (ind !== -1) {
         return true;

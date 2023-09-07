@@ -7,7 +7,15 @@ import { useRoute } from "vue-router";
 import { useStore } from '../store'
 import type { Person } from '../store/state'
 
-const activePerson: Ref <Person> = ref(null);
+let defaultPerson: Person = {
+    id: 1,
+    name: '',
+    height: 1, 
+    mass: 1,
+    hair_color: ''
+}
+
+const activePerson: Ref <Person> = ref(defaultPerson);
 const route = useRoute();
 const idPerson = ref(Number(route.params.id));
 

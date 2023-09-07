@@ -17,7 +17,7 @@ export type Mutations = {
     [MutationType.PushSearchPerson] (state: State, item: Person): void
     [MutationType.PushFavoritesPerson] (state: State, item: Person): void
     [MutationType.DeleteFavoritesPerson] (state: State, item: Person): void
-    [MutationType.SetFavoritesPerson] (state: State, item: Person): void
+    [MutationType.SetFavoritesPerson] (state: State, items: Person[]): void
     [MutationType.ClearPeopleList] (state: State): void
     [MutationType.ClearFavoritesList] (state: State): void
     [MutationType.ClearSearchList] (state: State): void

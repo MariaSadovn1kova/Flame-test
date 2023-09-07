@@ -5,22 +5,22 @@ import type { Person } from '../store/state'
 import { MutationType } from '../store/mutations';
 import { ActionTypes } from '../store/actions'
 
-const favorites = ref(JSON.parse(localStorage.getItem(`favorites_list`)))
+const favorites = ref(JSON.parse(localStorage.getItem(`favorites_list`) || '{}'))
 const store = useStore()
 
 function clearFavorites(){
   localStorage.clear();
-  favorites.value = JSON.parse(localStorage.getItem(`favorites_list`));
+  favorites.value = JSON.parse(localStorage.getItem(`favorites_list`) || '{}');
 }
 
 function deleteFavorites(item: Person){
   store.commit(MutationType.DeleteFavoritesPerson, item);
   localStorage.setItem(`favorites_list`, JSON.stringify(store.getters.favoritePeople));
-  favorites.value = JSON.parse(localStorage.getItem(`favorites_list`));
+  favorites.value = JSON.parse(localStorage.getItem(`favorites_list`) || '{}');
 }
 
 onBeforeMount(async () => { 
-  store.dispatch(ActionTypes.GetFavoritesPeoples, null);
+  store.dispatch(ActionTypes.GetFavoritesPeoples, undefined);
 })
 </script>
 

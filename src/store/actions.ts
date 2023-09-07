@@ -24,7 +24,7 @@ export type Actions = {
 
 export const actions: ActionTree<State, State> & Actions = {
     async [ActionTypes.GetAllPeoples]({ commit }, page: Number){
-        commit(MutationType.ClearPeopleList)
+        commit(MutationType.ClearPeopleList, undefined)
 
         const res = await fetch('https://swapi.dev/api/people/?page=' + page);
         const data = await res.json();
@@ -42,7 +42,7 @@ export const actions: ActionTree<State, State> & Actions = {
         }
     },
     async [ActionTypes.GetSearchPeoples]({ commit }, str: String){
-        commit(MutationType.ClearSearchList)
+        commit(MutationType.ClearSearchList, undefined)
 
         const res = await fetch('https://swapi.dev/api/people/?search=' + str)
         const data = await res.json()
@@ -63,7 +63,7 @@ export const actions: ActionTree<State, State> & Actions = {
         }
     },
     [ActionTypes.GetFavoritesPeoples]({ commit }){
-        commit(MutationType.ClearFavoritesList)
+        commit(MutationType.ClearFavoritesList, undefined)
 
         const data = JSON.parse(localStorage.getItem(`favorites_list`) || '')
     
